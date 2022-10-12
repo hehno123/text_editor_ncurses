@@ -5,110 +5,84 @@
 #include <vector>
 #include <cstring>
 #include <ncurses.h>
+#include <stdlib.h>
 #include "variable.h"
+#include "copy_variable.h"
 
-void open_file(std::string& file_name, std::vector<std::string>& text, int& yMax, int& last_line_print, int& cursor_position_y)
-{   	
-        std::fstream MyFile;
-	std::string line2;
-	MyFile.open(file_name);
-
-	if(MyFile.fail())
-	{
-		MyFile.open(file_name, std::ios_base::out);
-	}
-
-	else
-        {
-	       
-               while (std::getline(MyFile, line2)) 
-	       {
-                     std::string row;
-
-                     for (char &c : line2) 
-		     {   
-                         if(c != '\n') 
-			 {
-                             row.push_back(c);
-                         }
-                      }
-
-                     text.push_back(row);
-	       }        
-	}
-
-	 if(text.size() > 1 && MyFile.fail())
-	 {
-       	    text.erase(text.begin() + 0);
-	 }
-        
-	 MyFile.close();
-        
-         if(text.size() > yMax)
-         {
-	       last_line_print = yMax - 1;	
-	       cursor_position_y = 0;
-	 }
-
-	 else
-	 {
-		last_line_print = text.size() - 1;
-		cursor_position_y = 0;
-	 }
-}
-
-void write_file(std::string& file_name, std::vector<std::string>& text)
-{
-	       std::fstream MyFile;
-               MyFile.open(file_name);
-
-	       for(int j = 0; j < text.size(); j++)
-	       {
-	           for(int i = 0; i < text[j].size(); i++)
-	           {
-	                 MyFile << text[j][i];
-	           }
-
-		       MyFile << '\n';
-	       } 
- 
-               MyFile.close();
-}
-
-void print_text(std::string& file_name, int& first_line_print, int& last_line_print, int& cursor_position_y, int& cursor_position_x, std::vector<std::string>& text,bool& what_mode, int& yMax, int& xMax)
+void print_text(std::string& file_name, int& first_line_print, int& last_line_print, int& cursor_position_y, int& cursor_position_x, std::vector<std::string>& text, int& what_mode, int& yMax, int& xMax, Visual_struct& visual_structure)
 {
 	  start_color();
-	  
+
           for(int j = first_line_print; j <= first_line_print + yMax - 1; j++)
           {
-		        if(j <= text.size() - 1)
+	                if(j <= text.size() - 1)
 		        {
-		           attrset(COLOR_PAIR(0));
-                           printw(text[j].c_str());
-			   printw("%c", '\n');
-			}
+			     attrset(COLOR_PAIR(0));	   
+		             if(what_mode != visual_mode)
+	                     {			     
+			         printw(text[j].c_str());
+			         printw("%c", '\n');
+		             }
+
+			     if(what_mode == visual_mode)
+		             {
+				     if(j == visual_structure.get_first_line() || j == visual_structure.get_last_line())
+				     {
+					     for(int i = 0; i < text[j].size(); i++)
+					     {
+						     if(i >= visual_structure.get_x_first() && i <= visual_structure.get_x_last())
+						     {
+							     init_pair(2, COLOR_WHITE, COLOR_RED);
+							     attrset(COLOR_PAIR(2));
+							     printw("%c", text[j][i]);
+						     }
+
+						     else
+						     {
+							     attrset(COLOR_PAIR(0));
+							     printw("%c", text[j][i]);
+						     }
+				             }
+
+					     printw("%c", '\n');
+			             }
+
+				     else if(j > visual_structure.get_first_line() && j < visual_structure.get_last_line())
+			             {
+					     init_pair(2, COLOR_WHITE, COLOR_RED);
+					     attrset(COLOR_PAIR(2));
+					     printw(text[j].c_str());
+					     printw("%c", '\n');
+				     }
+
+				     else
+		                     {
+					     printw(text[j].c_str());
+					     printw("%c", '\n');
+				     }
+			  }
+		   }
 
 			else
 		        {
                             init_pair(1, COLOR_BLUE, COLOR_BLACK);
-		            attrset(COLOR_PAIR(1)); 
-		            printw("~");
+		            attrset(COLOR_PAIR(1)); 			   
+			    printw("~");
 		            printw("%c", '\n');
 		            refresh();
 			}	            	
 	  }
 	  
-	   refresh(); 
 	   refresh();
-           attrset(COLOR_PAIR(0));
+	   attrset(COLOR_PAIR(0)); 
 	   move(yMax , 0);
 	   
-	   if(what_mode == true)
+	   if(what_mode == write_mode)
            {
 		  printw("WRITE_MODE     ");
            }
 
-	   else
+	   else if(what_mode == edit_mode)
            {
 		  printw("EDIT_MODE      ");
            }
@@ -129,6 +103,7 @@ void print_text(std::string& file_name, int& first_line_print, int& last_line_pr
 	   printw("%d" "%c" "%d", cursor_position_y, ',', cursor_position_x);
 
            move(cursor_position_y - first_line_print, cursor_position_x);
+           //printw("%d" "%c" "%d" "%c" "%d" "%c" "%d" "%c" "%d" , cursor_position_y, ' ', cursor_position_x, ' ', first_line_print, ' ', last_line_print, ' ', text.size());
 }
 
 int main(int argc, char** argv)
@@ -141,7 +116,8 @@ int main(int argc, char** argv)
 	keypad(stdscr, TRUE);
 
 	std::string file_name;
-        bool what_mode = true;
+	bool editor_work = true;
+        int what_mode = write_mode;
         int level = 1;
 	std::vector<std::string> text(1);
 	std::string add{};
@@ -149,6 +125,8 @@ int main(int argc, char** argv)
 	int xMax = 0;
 	int yMax = 0;
 	int first_line_print = 0, last_line_print = 0;
+	std::stack<Undo_struct> text_history;
+	Visual_struct visual_structure;
         
 	getmaxyx(stdscr, yMax, xMax);
 	yMax--;
@@ -160,50 +138,118 @@ int main(int argc, char** argv)
 
 	open_file(file_name, text, yMax, last_line_print, cursor_position_y);
 	
-	while(true)
+	while(editor_work)
 	{
-		   print_text(file_name, first_line_print, last_line_print, cursor_position_y, cursor_position_x, text, what_mode, yMax, xMax);
+		   print_text(file_name, first_line_print, last_line_print, cursor_position_y, cursor_position_x, text, what_mode, yMax, xMax, visual_structure);
 		   int input_key = getch();
 		  
-	           if(input_key == 27)
-	           {
-	              break;
-	           }
-          
-		  switch(input_key)
-		  {
+		  if(what_mode == write_mode)
+	          {
+		      switch(input_key)
+		      {
 		        case KEY_RIGHT:
-                                right_key(cursor_position_y, cursor_position_x, xMax, text);
+                                right_key_write(cursor_position_y, cursor_position_x, xMax, yMax, first_line_print, last_line_print, text);
 			        break;
 
 		        case KEY_LEFT:
-                                  left_key(cursor_position_x, cursor_position_y, text);
+                                  left_key_write(cursor_position_x, cursor_position_y, yMax, first_line_print, last_line_print, text);
 			          break;
 
 		        case KEY_UP:
-		                 up_key(cursor_position_y, first_line_print, last_line_print, cursor_position_x, text);                       
+		                 up_key_write(cursor_position_y, first_line_print, last_line_print, cursor_position_x, text);                       
 			         break;
 			         
 		        case KEY_DOWN:
-                                 down_key(cursor_position_y, first_line_print, last_line_print, cursor_position_x, text);
+                                 down_key_write(cursor_position_y, first_line_print, last_line_print, cursor_position_x, text);
 			         break;
 
 		        case KEY_BACKSPACE:
-			         backspace_key(level, input_key, cursor_position_x, cursor_position_y, xMax, yMax, first_line_print, last_line_print, text, add);
+			         backspace_key_write(level, input_key, cursor_position_x, cursor_position_y, xMax, yMax, first_line_print, last_line_print, text, add, text_history);
 			         break;
 
-			    case 127:
-			         backspace_key(level, input_key, cursor_position_x, cursor_position_y, xMax, yMax, first_line_print, last_line_print, text, add);
+			case 127:
+			         backspace_key_write(level, input_key, cursor_position_x, cursor_position_y, xMax, yMax, first_line_print, last_line_print, text, add, text_history);
 			         break;
    
 		        case '\n':
-			        newline(level, input_key, cursor_position_x, cursor_position_y, xMax, yMax, first_line_print, last_line_print, text, add);
+			        newline_write(level, input_key, cursor_position_x, cursor_position_y, xMax, yMax, first_line_print, last_line_print, text, add,text_history);
 			        break;
+ 
+			case KEY_IC:
+                               what_mode = edit_mode;
+			       break;
 
 		        default:
-			        other_char(level, input_key, cursor_position_x, cursor_position_y, xMax, yMax, first_line_print, last_line_print, text);
+			        other_char_write(level, input_key, cursor_position_x, cursor_position_y, xMax, yMax, first_line_print, last_line_print, text);
 			        break;
-          }
+                       }
+		 }
+
+                 else if(what_mode == edit_mode)
+	         {
+			 switch(input_key)
+		         {
+			       case KEY_IC:
+			            what_mode = write_mode;
+			            break;
+
+			       case 27:
+			            editor_work = false;
+			            break;
+			      
+			       case KEY_RIGHT:
+                                    right_key_write(cursor_position_y, cursor_position_x, xMax, yMax, first_line_print, last_line_print, text);
+			            break;
+
+		               case KEY_LEFT:
+                                    left_key_write(cursor_position_x, cursor_position_y, yMax, first_line_print, last_line_print, text);
+			            break;
+
+		               case KEY_UP:
+		                    up_key_write(cursor_position_y, first_line_print, last_line_print, cursor_position_x, text);                       
+			            break;
+			         
+		               case KEY_DOWN:
+                                    down_key_write(cursor_position_y, first_line_print, last_line_print, cursor_position_x, text);
+			            break;
+			       
+			       case 'w':
+				    what_mode = visual_mode;
+				    visual_structure.change_first_line(cursor_position_y);
+				    visual_structure.change_last_line(cursor_position_y);
+				    visual_structure.change_x_position_first(cursor_position_x);
+				    visual_structure.change_x_position_last(cursor_position_x);
+				    break;
+			 }
+	         }
+                 
+		 else if(what_mode == visual_mode)
+	         {
+			 switch(input_key)
+		         {
+				 case 27:
+				 editor_work = false;
+				 break;
+
+				 case 'd':
+				 right_key_visual(cursor_position_y, cursor_position_x, xMax, yMax, first_line_print, last_line_print, text, visual_structure);
+				 break;
+
+				 case KEY_RIGHT:
+                                 right_key_visual(cursor_position_y, cursor_position_x, xMax, yMax, first_line_print, last_line_print, text, visual_structure);
+                                 break;
+
+				 case 'a':
+			         left_key_visual(cursor_position_x, cursor_position_y, yMax, first_line_print, last_line_print, text, visual_structure);
+				 break;
+
+				 case KEY_LEFT:
+                                 left_key_visual(cursor_position_x, cursor_position_y, yMax, first_line_print, last_line_print, text, visual_structure);
+				 break;
+		         }
+				      
+ 	         }
+
                    add = {};
 	           refresh();
                    clear();
