@@ -1,1 +1,1 @@
-Text editor in ncurses, inspired by vim
+#Text editor in ncurses, inspired by vim
