@@ -61,12 +61,8 @@ void write_file(std::string& file_name, std::vector<std::string>& text)
 
 	       for(int j = 0; j < text.size(); j++)
 	       {
-	           for(int i = 0; i < text[j].size(); i++)
-	           {
-	                 MyFile << text[j][i];
-	           }
-
-		       MyFile << '\n';
+	                 MyFile << text[j];
+		         MyFile << '\n';
 	       } 
  
                MyFile.close();
