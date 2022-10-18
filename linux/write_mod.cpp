@@ -63,17 +63,18 @@ void left_key_write(int& cursor_position_x, int& cursor_position_y, int& yMax, i
 			return ;
 }
 
-void up_key_write(int& cursor_position_y, int& first_line_print, int& last_line_print, int& cursor_position_x, std::vector<std::string>& text)
+void up_key_write(int& cursor_position_y, int& first_line_print, int& last_line_print, int& cursor_position_x, int& yMax, std::vector<std::string>& text)
 {
                         if(cursor_position_y > 0)
 			{
-				if(cursor_position_y == first_line_print)
+				if(cursor_position_y == first_line_print && first_line_print > 0)
 				{
-				    if(first_line_print > 0)
-				    {
-				           last_line_print--;
-					       first_line_print--;
-				    }				   
+				     if(last_line_print - first_line_print == yMax - 1)
+				     {
+					     last_line_print--;
+				     }
+
+				     first_line_print--;		   
 				}
 
 				if(cursor_position_x > text[cursor_position_y -1].size())
@@ -115,12 +116,8 @@ void down_key_write(int& cursor_position_y, int& first_line_print, int& last_lin
 void backspace_key_write(int& level, int& c, int& cursor_position_x, int& cursor_position_y, int& xMax, int& yMax, int& first_line_print, int& last_line_print, std::vector<std::string>& text, std::string& add, std::stack<Undo_struct>& text_history)
 {
 	            Undo_struct undo;
-		    undo.undo_first_line_print = first_line_print;
-		    undo.undo_last_line_print = last_line_print;
-		    undo.undo_level = level;
-		    undo.undo_cursor_position_y = cursor_position_y;
-		    undo.undo_cursor_position_x = cursor_position_x;
-      
+                    undo.save_current_parameters_to_stack(first_line_print, last_line_print, level, cursor_position_y, cursor_position_x);
+		    
 		    if(cursor_position_x == 0 && cursor_position_y == 0)
 		    {
 				cursor_position_x = 0; 
@@ -130,8 +127,7 @@ void backspace_key_write(int& level, int& c, int& cursor_position_x, int& cursor
 
 		    if(cursor_position_x == 0 && cursor_position_y > 0)
 		    { 
-			     undo.what_operation = backspace_x_greater;
-
+			     
 			     for(int i = 0; i < text[cursor_position_y].size(); i++)
 			     {
 				      text[cursor_position_y - 1].push_back(text[cursor_position_y][i]);
@@ -152,15 +148,20 @@ void backspace_key_write(int& level, int& c, int& cursor_position_x, int& cursor
 			     cursor_position_x = text[cursor_position_y - 1].size() - text[cursor_position_y].size();
                              text.erase(text.begin() + cursor_position_y);
 			     cursor_position_y--;
+			     undo.what_operation = backspace_undo;
+			     text_history.push(undo);
 			     return;
 		    }
 
 		        
 		    if(cursor_position_x > 0 && cursor_position_y >= 0)
 		    {
-				undo.what_operation = backspace_x_greater_size_greater_0;
 			        cursor_position_x--;
+				undo.what_char_delete = text[cursor_position_y][cursor_position_x];
 		                text[cursor_position_y].erase(text[cursor_position_y].begin() + cursor_position_x);
+				undo.what_operation = backspace_undo;
+				text_history.push(undo);
+
 			        return;
 		    }
 
@@ -170,12 +171,10 @@ void backspace_key_write(int& level, int& c, int& cursor_position_x, int& cursor
 void newline_write(int& level, int& c, int& cursor_position_x, int& cursor_position_y, int& xMax, int& yMax, int& first_line_print, int& last_line_print,std::vector<std::string>& text, std::string& add, std::stack<Undo_struct>& text_history)
 {
 	                        Undo_struct undo;
-		                undo.undo_first_line_print = first_line_print;
-		                undo.undo_last_line_print = last_line_print;
-		                undo.undo_level = level;
-		                undo.undo_cursor_position_y = cursor_position_y;
-		                undo.undo_cursor_position_x = cursor_position_x;
-                                
+				undo.save_current_parameters_to_stack(first_line_print, last_line_print, level, cursor_position_y, cursor_position_x);
+		                undo.what_operation = newline_undo;
+				text_history.push(undo);
+
                                 if(text.size() < yMax)
 		                {
 			                last_line_print++;
@@ -202,8 +201,7 @@ void newline_write(int& level, int& c, int& cursor_position_x, int& cursor_posit
 			        {
 				    text[cursor_position_y].pop_back();	
 			        }
-	
-			        undo.what_operation = newline_text_smaller_x_smaller;
+
 			        cursor_position_x = 0;
 			        cursor_position_y++;
 			        text.insert(text.begin() + cursor_position_y,add);
@@ -212,8 +210,13 @@ void newline_write(int& level, int& c, int& cursor_position_x, int& cursor_posit
 			        return;
 }
 
-void other_char_write(int& level, int& c, int& cursor_position_x, int& cursor_position_y, int& xMax, int& yMax, int& first_line_print, int& last_line_print, std::vector<std::string>& text)
+void other_char_write(int& level, int& c, int& cursor_position_x, int& cursor_position_y, int& xMax, int& yMax, int& first_line_print, int& last_line_print, std::vector<std::string>& text, std::stack<Undo_struct>& text_history)
 {
+	                     Undo_struct undo;
+	                     undo.save_current_parameters_to_stack(first_line_print, last_line_print, level, cursor_position_y, cursor_position_x);
+                             undo.what_operation = new_char_undo;
+			     text_history.push(undo);
+                      
                              if(cursor_position_x + 1 == xMax)
 		             {
 			         if(cursor_position_y + 1 == text.size())
@@ -253,3 +256,19 @@ void other_char_write(int& level, int& c, int& cursor_position_x, int& cursor_po
 		       
 			return;
 }
+
+void undo(int& first_line_print, int& last_line_print, int& cursor_position_y, int& cursor_position_x, int& level, int& yMax, int& xMax, std::vector<std::string>& text, std::stack<Undo_struct>& text_history)
+{
+	 Undo_struct undo;
+
+	 if(!text_history.empty())
+         {
+	     undo = text_history.top();
+	 }
+
+	 else
+         {
+		 return;
+	 }
+}
+
