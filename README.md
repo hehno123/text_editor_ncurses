@@ -1,6 +1,7 @@
 # Text editor in ncurses, inspired by vim
 
-This is small editor writen in c++ and ncurses library. For this moment it compile only for linux, but in future I will make version for windows. 
+This is small editor writen in c++ and ncurses library. For this moment it compile only for linux, but in future I will make version for windows.
+Editor isn't complete, so it can have some bugs.
 
 # Mode
 
