@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -9,7 +10,7 @@
 #include "variable.h"
 #include "copy_variable.h"
 
-void print_text(std::string& file_name, int& first_line_print, int& last_line_print, int& cursor_position_y, int& cursor_position_x, std::vector<std::string>& text, int& what_mode, int& yMax, int& xMax, Visual_struct& visual_structure)
+void print_text(std::string& file_name, int& first_line_print, int& last_line_print, int& cursor_position_y, int& cursor_position_x, std::vector<std::string>& text, int& what_mode, int& yMax, int& xMax, int& copy_cursor_position_x, std::string& search_value, Visual_struct& visual_structure)
 {
 	  start_color();
 
@@ -17,7 +18,8 @@ void print_text(std::string& file_name, int& first_line_print, int& last_line_pr
           {
 	                if(j <= text.size() - 1)
 		        {
-			     attrset(COLOR_PAIR(0));	   
+			     attrset(COLOR_PAIR(0));
+
 		             if(what_mode != visual_mode)
 	                     {			     
 			         printw(text[j].c_str());
@@ -26,32 +28,74 @@ void print_text(std::string& file_name, int& first_line_print, int& last_line_pr
 
 			     if(what_mode == visual_mode)
 		             {
-				     if(j == visual_structure.get_first_line() || j == visual_structure.get_last_line())
+				     int max_value_line;
+				     int min_value_line;
+				     int min_value_x;
+				     int max_value_x;
+
+				     visual_structure.max_value_visual(max_value_line, min_value_line, max_value_x, min_value_x);
+                              
+				     if(j == max_value_line || j == min_value_line)
 				     {
-					     for(int i = 0; i < text[j].size(); i++)
-					     {
-						     if(i >= visual_structure.get_x_first() && i <= visual_structure.get_x_last())
-						     {
-							     init_pair(2, COLOR_WHITE, COLOR_RED);
+					              if(text[j].size() == 0)
+					              { 
+                                                          init_pair(2, COLOR_WHITE, COLOR_RED);
+							  attrset(COLOR_PAIR(2));
+							  printw("%c", ' ');
+					              } 
+
+                                                       int min_value_x_copy;
+						       int max_value_x_copy;
+
+						       if(max_value_line == j && min_value_line == j)
+						       {
+							       min_value_x_copy = min_value_x;
+							       max_value_x_copy = max_value_x;
+                                                       }
+
+						       if(max_value_line == j && min_value_line < j)
+						       {
+							       max_value_x_copy = max_value_x;
+							       min_value_x_copy = 0;
+						       }
+
+						       if(max_value_line > j && min_value_line == j)
+						       {
+							       min_value_x_copy = min_value_x;
+							       max_value_x_copy = text[j].size() - 1;
+						       }
+
+                                                  for(int i = 0; i < text[j].size(); i++)
+					          {
+						       if(i >= min_value_x_copy && i <= max_value_x_copy)
+						       {
+                                                             init_pair(2, COLOR_WHITE, COLOR_RED);
 							     attrset(COLOR_PAIR(2));
 							     printw("%c", text[j][i]);
-						     }
+						       }
 
-						     else
-						     {
+						       else
+						       {
 							     attrset(COLOR_PAIR(0));
 							     printw("%c", text[j][i]);
-						     }
-				             }
+						       } 
+				                 }
 
-					     printw("%c", '\n');
-			             }
+					          printw("%c", '\n');
+				     }
 
-				     else if(j > visual_structure.get_first_line() && j < visual_structure.get_last_line())
+
+				     else if(j > min_value_line && j < max_value_line)
 			             {
-					     init_pair(2, COLOR_WHITE, COLOR_RED);
+                                             init_pair(2, COLOR_WHITE, COLOR_RED);
 					     attrset(COLOR_PAIR(2));
 					     printw(text[j].c_str());
+                                             
+					     if(text[j].size() == 0)
+					     {
+						     printw("%c", ' ');
+					     } 
+
 					     printw("%c", '\n');
 				     }
 
@@ -61,9 +105,9 @@ void print_text(std::string& file_name, int& first_line_print, int& last_line_pr
 					     printw("%c", '\n');
 				     }
 			  }
-		   }
+		   } 
 
-			else
+                        else
 		        {
                             init_pair(1, COLOR_BLUE, COLOR_BLACK);
 		            attrset(COLOR_PAIR(1)); 			   
@@ -76,34 +120,50 @@ void print_text(std::string& file_name, int& first_line_print, int& last_line_pr
 	   refresh();
 	   attrset(COLOR_PAIR(0)); 
 	   move(yMax , 0);
-	   
-	   if(what_mode == write_mode)
+
+	   if(what_mode == search_mode)
            {
-		  printw("WRITE_MODE     ");
-           }
-
-	   else if(what_mode == edit_mode)
-           {
-		  printw("EDIT_MODE      ");
-           }
-
-	   printw("FILE_NAME: ");
-
-	   if(file_name.size() == 0)
-           {
-		   printw("no name");
-           }
-
-	   else
-	   {
-	      printw(file_name.c_str());
+	          printw("/");
+                  printw(search_value.c_str());
+                  move(yMax, copy_cursor_position_x); 
+		  return;
 	   }
+           
+           else	
+	   {   
+	            if(what_mode == write_mode)
+                    {
+		           printw("WRITE_MODE     ");
+                    }
 
-	   move(yMax, xMax - xMax / 6);
-	   printw("%d" "%c" "%d", cursor_position_y, ',', cursor_position_x);
+	            else if(what_mode == edit_mode)
+                    { 
+		           printw("EDIT_MODE      ");
+                    }
+
+	            else if(what_mode == visual_mode)
+	            {
+		           printw("VISUAL_MODE   ");
+                    }
+
+	            printw("FILE_NAME: ");
+
+	            if(file_name.size() == 0)
+                    {
+		         printw("no name");
+                    }
+ 
+	            else
+	            {
+	                printw(file_name.c_str());
+	            } 
+ 
+	            move(yMax, xMax - xMax / 6);
+	            printw("%d" "%c" "%d", cursor_position_y, ',', cursor_position_x);
+           }
 
            move(cursor_position_y - first_line_print, cursor_position_x);
-           //printw("%d" "%c" "%d" "%c" "%d" "%c" "%d" "%c" "%d" , cursor_position_y, ' ', cursor_position_x, ' ', first_line_print, ' ', last_line_print, ' ', text.size());
+          // printw("%d" "%c" "%d" "%c" "%d" "%c" "%d" "%c" "%d" , cursor_position_y, ' ', cursor_position_x, ' ', first_line_print, ' ', last_line_print, ' ', text.size());
 }
 
 int main(int argc, char** argv)
@@ -127,6 +187,8 @@ int main(int argc, char** argv)
 	int first_line_print = 0, last_line_print = 0;
 	std::stack<Undo_struct> text_history;
 	Visual_struct visual_structure;
+	std::string search_value;
+	int copy_cursor_position_x;
         
 	getmaxyx(stdscr, yMax, xMax);
 	yMax--;
@@ -140,7 +202,7 @@ int main(int argc, char** argv)
 	
 	while(editor_work)
 	{
-		   print_text(file_name, first_line_print, last_line_print, cursor_position_y, cursor_position_x, text, what_mode, yMax, xMax, visual_structure);
+		   print_text(file_name, first_line_print, last_line_print, cursor_position_y, cursor_position_x, text, what_mode, yMax, xMax, copy_cursor_position_x, search_value,  visual_structure);
 		   int input_key = getch();
 		  
 		  if(what_mode == write_mode)
@@ -156,7 +218,7 @@ int main(int argc, char** argv)
 			          break;
 
 		        case KEY_UP:
-		                 up_key_write(cursor_position_y, first_line_print, last_line_print, cursor_position_x, text);                       
+		                 up_key_write(cursor_position_y, first_line_print, last_line_print, cursor_position_x, yMax, text);                       
 			         break;
 			         
 		        case KEY_DOWN:
@@ -180,7 +242,7 @@ int main(int argc, char** argv)
 			       break;
 
 		        default:
-			        other_char_write(level, input_key, cursor_position_x, cursor_position_y, xMax, yMax, first_line_print, last_line_print, text);
+			        other_char_write(level, input_key, cursor_position_x, cursor_position_y, xMax, yMax, first_line_print, last_line_print, text, text_history);
 			        break;
                        }
 		 }
@@ -206,7 +268,7 @@ int main(int argc, char** argv)
 			            break;
 
 		               case KEY_UP:
-		                    up_key_write(cursor_position_y, first_line_print, last_line_print, cursor_position_x, text);                       
+		                    up_key_write(cursor_position_y, first_line_print, last_line_print, cursor_position_x, yMax, text);                       
 			            break;
 			         
 		               case KEY_DOWN:
@@ -215,10 +277,21 @@ int main(int argc, char** argv)
 			       
 			       case 'w':
 				    what_mode = visual_mode;
-				    visual_structure.change_first_line(cursor_position_y);
-				    visual_structure.change_last_line(cursor_position_y);
-				    visual_structure.change_x_position_first(cursor_position_x);
-				    visual_structure.change_x_position_last(cursor_position_x);
+				    visual_structure.change_line_non_static(cursor_position_y);
+				    visual_structure.change_line_static(cursor_position_y);
+				    visual_structure.change_x_position_non_static(cursor_position_x);
+				    visual_structure.change_x_position_static(cursor_position_x);
+				    visual_structure.change_first_line_print(first_line_print);
+				    visual_structure.copied_text.clear();
+				    break;
+
+			       case 'p':
+				    paste_visual(cursor_position_y, cursor_position_x, xMax, yMax, last_line_print, text, visual_structure);
+				    break;
+			       
+			       case '/':
+				    what_mode = search_mode;
+				    copy_cursor_position_x = 1;
 				    break;
 			 }
 	         }
@@ -229,6 +302,10 @@ int main(int argc, char** argv)
 		         {
 				 case 27:
 				 editor_work = false;
+				 break;
+                                 
+				 case KEY_IC:
+				 what_mode = edit_mode;
 				 break;
 
 				 case 'd':
@@ -246,9 +323,90 @@ int main(int argc, char** argv)
 				 case KEY_LEFT:
                                  left_key_visual(cursor_position_x, cursor_position_y, yMax, first_line_print, last_line_print, text, visual_structure);
 				 break;
+
+				 case 'w':
+				 up_key_visual(cursor_position_y, first_line_print, last_line_print, cursor_position_x, yMax, text, visual_structure);
+				 break;
+
+				 case KEY_UP:
+				 up_key_visual(cursor_position_y, first_line_print, last_line_print, cursor_position_x, yMax, text, visual_structure);
+				 break;
+
+				 case 's':
+				 down_key_visual(cursor_position_y, first_line_print, last_line_print, cursor_position_x, text, visual_structure);
+				 break;
+
+				 case KEY_DOWN:
+                                 down_key_visual(cursor_position_y, first_line_print, last_line_print, cursor_position_x, text, visual_structure);
+				 break;
+
+				 case 'c':
+				 copy_to_buffer_visual(text, visual_structure);
+                                 what_mode = write_mode;
+			         break;
+
+				 case KEY_BACKSPACE:
+				 delete_visual(first_line_print, last_line_print, yMax, cursor_position_y, cursor_position_x, text, visual_structure);
+				 what_mode = write_mode;
+				 break; 
 		         }
 				      
  	         }
+
+		 else if(what_mode == search_mode)
+		 {
+			 switch(input_key)
+			 {
+			        case '\n':
+				search_in_text(first_line_print, last_line_print, yMax, xMax, cursor_position_y, cursor_position_x, search_value, text);
+				search_value.clear();
+				what_mode = write_mode;
+				break;
+
+				case 27:
+				search_value.clear();
+				what_mode = write_mode;
+				break;
+			        
+				case KEY_IC:
+				what_mode = edit_mode;
+				search_value.clear();
+				break;
+
+				case KEY_BACKSPACE:
+
+				if(copy_cursor_position_x > 1)
+				{
+			           search_value.pop_back();
+                                   copy_cursor_position_x--;
+				}
+
+				break;
+                                
+				case KEY_LEFT:
+
+                                if(copy_cursor_position_x > 1)
+				{
+					copy_cursor_position_x--;
+				}
+
+				break;
+
+				case KEY_RIGHT:
+
+				if(copy_cursor_position_x < search_value.size())
+			        {
+					copy_cursor_position_x++;
+				}
+
+				break;
+
+		                default:
+			        search_value.push_back(input_key);
+				copy_cursor_position_x++;
+			        break;
+			 }
+	          }
 
                    add = {};
 	           refresh();
