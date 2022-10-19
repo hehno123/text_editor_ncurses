@@ -37,7 +37,8 @@ Editor have three mode:
   - Make undo and redo
   - Interact with system_terminal
   - Syntax_highlighter
-  - disabled some key in modes
+  - Disabled some key in modes
+  - Mouse interaction
   - More operation on files
   - Better organise code
   
