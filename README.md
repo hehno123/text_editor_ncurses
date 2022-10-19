@@ -5,7 +5,7 @@ Editor isn't complete, so it can have some bugs.
 
 # Mode
 
-Editor have three mode:
+Editor have three modes:
 
  - Write - in this mode you can write text.
 
