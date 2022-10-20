@@ -175,6 +175,7 @@ int main(int argc, char** argv)
 	intrflush(stdscr, FALSE);
 	keypad(stdscr, TRUE);
 
+	//variable declaration
 	std::string file_name;
 	bool editor_work = true;
         int what_mode = write_mode;
