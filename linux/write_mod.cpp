@@ -8,6 +8,7 @@ void right_key_write(int& cursor_position_y, int& cursor_position_x, int& xMax, 
 {
                         if(cursor_position_x < text[cursor_position_y].size())
 			{
+			     //if cursor is one xMax position, then it is skip to next line text
 			     if(cursor_position_x == xMax && text.size() - 1 != cursor_position_y)
 		             {
 				     cursor_position_x = 0;
@@ -42,8 +43,9 @@ void right_key_write(int& cursor_position_y, int& cursor_position_x, int& xMax, 
 
 void left_key_write(int& cursor_position_x, int& cursor_position_y, int& yMax, int& first_line_print, int& last_line_print, std::vector<std::string>& text)
 {
+	                //change position to earlier line
                         if(cursor_position_x == 0 && cursor_position_y > 0)
-			{
+			{ 
 				if(first_line_print == cursor_position_y)
 				{
 				      first_line_print--;
@@ -257,6 +259,7 @@ void other_char_write(int& level, int& c, int& cursor_position_x, int& cursor_po
 			return;
 }
 
+//i start build undo function, but i must rebulid it.
 void undo(int& first_line_print, int& last_line_print, int& cursor_position_y, int& cursor_position_x, int& level, int& yMax, int& xMax, std::vector<std::string>& text, std::stack<Undo_struct>& text_history)
 {
 	 Undo_struct undo;
