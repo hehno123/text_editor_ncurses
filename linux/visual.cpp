@@ -263,7 +263,7 @@ void search_in_text(int& first_line_print, int& last_line_print, int& yMax, int&
                                 j++;
                        }
   
-                       if (j == size_of_search_text) 
+		       if(j == size_of_search_text) 
 		       { 
                               cursor_position_y = i;  
 	                      cursor_position_x = j - k;
@@ -286,20 +286,20 @@ void search_in_text(int& first_line_print, int& last_line_print, int& yMax, int&
                               else
 	                      {
 	                               last_line_print = text.size() - 1;
-	                      }			       
+	                      }
+
+                              return;			      
 		       }
 
-		       if (k != 0 && j < size_of_text && search_value[k] != text[i][j])
+		       else if (k != 0 && j < size_of_text && search_value[k] != text[i][j])
 		       {
                              k = lps[k - 1];
 		       }
 
                        else if(k == 0 && j < size_of_text && search_value[k] != text[i][j])
 		       {
-                               k++;     
+                               j++;     
 		       }
                  }
 	}
 }
-		            	    
-
