@@ -175,7 +175,6 @@ int main(int argc, char** argv)
 	intrflush(stdscr, FALSE);
 	keypad(stdscr, TRUE);
 
-	//variable declaration
 	std::string file_name;
 	bool editor_work = true;
         int what_mode = write_mode;
@@ -243,7 +242,7 @@ int main(int argc, char** argv)
 			       break;
 
 		        default:
-			        other_char_write(level, input_key, cursor_position_x, cursor_position_y, xMax, yMax, first_line_print, last_line_print, text, text_history);
+			        other_char_write(level, input_key, what_mode, cursor_position_x, cursor_position_y, xMax, yMax, first_line_print, last_line_print, text, text_history);
 			        break;
                        }
 		 }
@@ -255,6 +254,10 @@ int main(int argc, char** argv)
 			       case KEY_IC:
 			            what_mode = write_mode;
 			            break;
+			       
+			       case 's':
+                                    write_file(file_name, text);
+				    break;
 
 			       case 27:
 			            editor_work = false;
@@ -294,17 +297,17 @@ int main(int argc, char** argv)
 				    what_mode = search_mode;
 				    copy_cursor_position_x = 1;
 				    break;
-			 }
+
+			       case 'u':
+				    undo(first_line_print, last_line_print, cursor_position_y, cursor_position_x, level, yMax, xMax, text, text_history);
+			            break;
+		         }
 	         }
                  
 		 else if(what_mode == visual_mode)
 	         {
 			 switch(input_key)
 		         {
-				 case 27:
-				 editor_work = false;
-				 break;
-                                 
 				 case KEY_IC:
 				 what_mode = edit_mode;
 				 break;
@@ -350,6 +353,12 @@ int main(int argc, char** argv)
 				 delete_visual(first_line_print, last_line_print, yMax, cursor_position_y, cursor_position_x, text, visual_structure);
 				 what_mode = write_mode;
 				 break; 
+
+                                 case 127:
+				 delete_visual(first_line_print, last_line_print, yMax, cursor_position_y, cursor_position_x, text, visual_structure);
+				 what_mode = write_mode;
+				 break; 
+
 		         }
 				      
  	         }
@@ -415,7 +424,6 @@ int main(int argc, char** argv)
                    refresh();
     }
                 
-	        write_file(file_name, text);
-                endwin();
+	        endwin();
 	        return 0;
 }
