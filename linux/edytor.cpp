@@ -207,22 +207,33 @@ int main(int argc, char** argv)
 		  
 		  if(what_mode == write_mode)
 	          {
+                      Undo_struct undo_struct_copy;
+
 		      switch(input_key)
 		      {
+
 		        case KEY_RIGHT:
-                                right_key_write(cursor_position_y, cursor_position_x, xMax, yMax, first_line_print, last_line_print, text);
-			        break;
+                                 right_key_write(cursor_position_y, cursor_position_x, xMax, yMax, first_line_print, last_line_print, text);
+				 undo_struct_copy.what_operation = right_key_undo;
+				 text_history.push(undo_struct_copy);
+			         break;
 
 		        case KEY_LEFT:
                                   left_key_write(cursor_position_x, cursor_position_y, yMax, first_line_print, last_line_print, text);
+                                  undo_struct_copy.what_operation = left_key_undo;
+				  text_history.push(undo_struct_copy);
 			          break;
 
 		        case KEY_UP:
-		                 up_key_write(cursor_position_y, first_line_print, last_line_print, cursor_position_x, yMax, text);                       
+		                 up_key_write(cursor_position_y, first_line_print, last_line_print, cursor_position_x, yMax, text);
+	                         undo_struct_copy.what_operation = up_key_undo;
+				 text_history.push(undo_struct_copy);
 			         break;
 			         
 		        case KEY_DOWN:
                                  down_key_write(cursor_position_y, first_line_print, last_line_print, cursor_position_x, text);
+				 undo_struct_copy.what_operation = down_key_undo;
+				 text_history.push(undo_struct_copy);
 			         break;
 
 		        case KEY_BACKSPACE:
@@ -249,6 +260,8 @@ int main(int argc, char** argv)
 
                  else if(what_mode == edit_mode)
 	         {
+                         Undo_struct undo_struct_copy;
+
 			 switch(input_key)
 		         {
 			       case KEY_IC:
@@ -264,19 +277,27 @@ int main(int argc, char** argv)
 			            break;
 			      
 			       case KEY_RIGHT:
-                                    right_key_write(cursor_position_y, cursor_position_x, xMax, yMax, first_line_print, last_line_print, text);
+                                    right_key_write(cursor_position_y, cursor_position_x, xMax, yMax, first_line_print, last_line_print, text); 
+				    undo_struct_copy.what_operation = right_key_undo;
+				    text_history.push(undo_struct_copy);
 			            break;
 
 		               case KEY_LEFT:
                                     left_key_write(cursor_position_x, cursor_position_y, yMax, first_line_print, last_line_print, text);
+				    undo_struct_copy.what_operation = left_key_undo;
+				    text_history.push(undo_struct_copy);
 			            break;
 
 		               case KEY_UP:
-		                    up_key_write(cursor_position_y, first_line_print, last_line_print, cursor_position_x, yMax, text);                       
+		                    up_key_write(cursor_position_y, first_line_print, last_line_print, cursor_position_x, yMax, text); 
+                                    undo_struct_copy.what_operation = up_key_undo;
+				    text_history.push(undo_struct_copy);
 			            break;
 			         
 		               case KEY_DOWN:
                                     down_key_write(cursor_position_y, first_line_print, last_line_print, cursor_position_x, text);
+                                    undo_struct_copy.what_operation = down_key_undo;
+				    text_history.push(undo_struct_copy);
 			            break;
 			       
 			       case 'w':
@@ -299,7 +320,7 @@ int main(int argc, char** argv)
 				    break;
 
 			       case 'u':
-				    undo(first_line_print, last_line_print, cursor_position_y, cursor_position_x, level, yMax, xMax, text, text_history);
+				    undo_change(first_line_print, last_line_print, cursor_position_y, cursor_position_x, level, yMax, xMax, text, text_history);
 			            break;
 		         }
 	         }
