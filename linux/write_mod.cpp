@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-void right_key_write(int& cursor_position_y, int& cursor_position_x, int& xMax, int& yMax, int& first_line_print, int& last_line_print, int& what_mode, std::vector<std::string>& text)
+void right_key_write(int& cursor_position_y, int& cursor_position_x, int& xMax, int& yMax, int& first_line_print, int& last_line_print, std::vector<std::string>& text)
 {
                         if(cursor_position_x < text[cursor_position_y].size())
 			{
@@ -268,36 +268,66 @@ void other_char_write(int& level, int& c, int& what_mode, int& cursor_position_x
 			return;
 }
 
-void undo(int& first_line_print, int& last_line_print, int& cursor_position_y, int& cursor_position_x, int& level, int& yMax, int& xMax, std::vector<std::string>& text, std::stack<Undo_struct>& text_history)
+void undo_change(int& first_line_print, int& last_line_print, int& cursor_position_y, int& cursor_position_x, int& level, int& yMax, int& xMax, std::vector<std::string>& text, std::stack<Undo_struct>& text_history)
 {
 	 Undo_struct undo;
 
 	 if(!text_history.empty())
          {
 	     undo = text_history.top();
-             
-	     if(undo.what_operation == backspace_undo)
+             std::string additional;
+             int input_key_char = 'u';
+             int mode = edit_mode;
+
+	     switch(undo.what_operation)
              {
-		     std::string additional;
-                     int input_key_char = 'u';
+		     case 1: //case for backspace char.
                      newline_write(level, input_key_char, cursor_position_x, cursor_position_y, xMax, yMax, first_line_print, last_line_print, text, additional,text_history);
-	     }
-
-	     else if(undo.what_operation == newline_undo || undo.what_operation == new_char_undo)
-	     {
-		     std::string additional;
-		     int input_key_char = 'u';
+		     text_history.pop();
+		     break;
+                     
+		     case 2: //case for newline char.
                      backspace_key_write(level, input_key_char, cursor_position_x, cursor_position_y, xMax, yMax, first_line_print, last_line_print, text, additional, text_history);
+		     text_history.pop();
+		     break;
+
+		     case 3: //case for write char
+                     additional = {};
+		     input_key_char = 'u';
+                     backspace_key_write(level, input_key_char, cursor_position_x, cursor_position_y, xMax, yMax, first_line_print, last_line_print, text, additional, text_history);
+		     text_history.pop();
+		     break;
+
+		     case 4: // case for delete char
+                     other_char_write(level, undo.what_char_delete, mode, cursor_position_x, cursor_position_y, xMax, yMax, first_line_print, last_line_print, text, text_history);
+		     text_history.pop();
+		     break;
+
+		     case 5: // case for right key
+                     left_key_write(cursor_position_x, cursor_position_y, yMax, first_line_print, last_line_print, text);
+                     text_history.pop();
+                     undo_change(first_line_print, last_line_print, cursor_position_y, cursor_position_x, level, yMax, xMax, text, text_history);
+                     break;
+
+		     case 6: // case for left key
+                     right_key_write(cursor_position_y, cursor_position_x, xMax, yMax, first_line_print, last_line_print, text);
+                     text_history.pop();
+                     undo_change(first_line_print, last_line_print, cursor_position_y, cursor_position_x, level, yMax, xMax, text, text_history);
+                     break;
+                     
+		     case 7: // case for up key
+	             down_key_write(cursor_position_y, first_line_print, last_line_print, cursor_position_x, text);
+		     text_history.pop();
+                     undo_change(first_line_print, last_line_print, cursor_position_y, cursor_position_x, level, yMax, xMax, text, text_history);
+                     break;
+
+		     case 8: // case for down key
+	             up_key_write(cursor_position_y, first_line_print, last_line_print, cursor_position_x, yMax, text);
+		     text_history.pop();
+                     undo_change(first_line_print, last_line_print, cursor_position_y, cursor_position_x, level, yMax, xMax, text, text_history);
+                     break;
 	     }
-
-	     else if(undo.what_operation == del_char_undo)
-	     {
-		   int mode = edit_mode;
-                   other_char_write(level, undo.what_char_delete, mode, cursor_position_x, cursor_position_y, xMax, yMax, first_line_print, last_line_print, text, text_history);
-             }
-
-	     text_history.pop();
-	 }
+       }
 
 	 else
          {
