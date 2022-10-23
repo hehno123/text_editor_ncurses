@@ -13,15 +13,16 @@
 #define newline_undo 2
 #define new_char_undo 3
 #define del_char_undo 4
-#define left_key_undo 5
-#define right_key_undo 6
+#define right_key_undo 5
+#define left_key_undo 6
 #define up_key_undo 7
 #define down_key_undo 8
 
 struct Undo_struct
 {
  	int what_operation;
-	int what_char_delete;	
+	int what_char_delete;
+        std::vector<std::string> copy_buffer;	
 };
 
 //Functions in write_mode
@@ -32,7 +33,7 @@ void down_key_write(int &, int &, int &, int&, std::vector<std::string>&);
 void backspace_key_write(int &, int&, int& , int&, int&, int&, int& , int&, std::vector<std::string>&, std::string&, std::stack<Undo_struct>&);
 void newline_write(int &, int&, int& , int&, int&, int&, int& , int&, std::vector<std::string>&, std::string&, std::stack<Undo_struct>&);
 void other_char_write(int &, int&, int& , int& , int&, int&, int&, int& , int&, std::vector<std::string>&, std::stack<Undo_struct>&);
-void undo(int&, int&, int&, int&, int&, int&, int&, std::vector<std::string>&, std::stack<Undo_struct>&);
+void undo_change(int&, int&, int&, int&, int&, int&, int&, std::vector<std::string>&, std::stack<Undo_struct>&);
 
 //Functions to read file and write to file
 void open_file(std::string& , std::vector<std::string>& , int& , int& , int&);
