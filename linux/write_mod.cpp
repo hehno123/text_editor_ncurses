@@ -160,7 +160,7 @@ void backspace_key_write(int& level, int& c, int& cursor_position_x, int& cursor
 		    if(cursor_position_x > 0 && cursor_position_y >= 0)
 		    {
 			        cursor_position_x--;
-				undo.what_char_delete = text[cursor_position_y][cursor_position_x];
+				undo.what_char = text[cursor_position_y][cursor_position_x];
 		                text[cursor_position_y].erase(text[cursor_position_y].begin() + cursor_position_x);
 
                                 if(static_cast<char>(c) != 'u')
@@ -225,6 +225,7 @@ void other_char_write(int& level, int& c, int& what_mode, int& cursor_position_x
 		             {
 	                           Undo_struct undo;
 	                           undo.what_operation = new_char_undo;
+				   undo.what_char = c;
 			           text_history.push(undo);
 		             }
 			    
@@ -287,8 +288,8 @@ void undo_change(int& first_line_print, int& last_line_print, int& cursor_positi
 		     break;
                      
 		     case 2: //case for newline char.
-                     backspace_key_write(level, input_key_char, cursor_position_x, cursor_position_y, xMax, yMax, first_line_print, last_line_print, text, additional, text_history);
-		     text_history.pop();
+                        backspace_key_write(level, input_key_char, cursor_position_x, cursor_position_y, xMax, yMax, first_line_print, last_line_print, text, additional, text_history);
+		        text_history.pop();
 		     break;
 
 		     case 3: //case for write char
@@ -299,7 +300,7 @@ void undo_change(int& first_line_print, int& last_line_print, int& cursor_positi
 		     break;
 
 		     case 4: // case for delete char
-                     other_char_write(level, undo.what_char_delete, mode, cursor_position_x, cursor_position_y, xMax, yMax, first_line_print, last_line_print, text, text_history);
+                     other_char_write(level, undo.what_char, mode, cursor_position_x, cursor_position_y, xMax, yMax, first_line_print, last_line_print, text, text_history);
 		     text_history.pop();
 		     break;
 
