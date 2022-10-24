@@ -4,11 +4,14 @@
 #include <string>
 #include "variable.h"
 
-void open_file(std::string& file_name, std::vector<std::string>& text, int& yMax, int& last_line_print, int& cursor_position_y)
+void open_file(std::string& file_name, std::vector<std::string>& text, int& yMax, int& last_line_print, int& cursor_position_y, int& cursor_position_x, int& first_line_print)
 {   	
         std::fstream MyFile;
 	std::string line2;
 	MyFile.open(file_name);
+        
+	text.clear();
+	text.resize(1);
 
 	if(MyFile.fail())
 	{
@@ -16,8 +19,7 @@ void open_file(std::string& file_name, std::vector<std::string>& text, int& yMax
 	}
 
 	else
-        {
-	       
+        { 
                while (std::getline(MyFile, line2)) 
 	       {
                      std::string row;
@@ -40,7 +42,9 @@ void open_file(std::string& file_name, std::vector<std::string>& text, int& yMax
 	 }
         
 	 MyFile.close();
-        
+         cursor_position_x = 0;
+	 first_line_print = 0;
+
          if(text.size() > yMax)
          {
 	       last_line_print = yMax - 1;	
