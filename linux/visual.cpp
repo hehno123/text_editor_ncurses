@@ -111,14 +111,14 @@ void paste_visual(int& cursor_position_y, int& cursor_position_x, int& xMax, int
 		  int where_is_cursor_x = cursor_position_x;
 		  int where_is_cursor_y = cursor_position_y;
 		  std::string buffer;
-
+                  
 	          for(int i = 0; i < visual_structure.copied_text[0].size(); i++)
 		  {
-			  text[cursor_position_y].insert(text[cursor_position_y].begin() + where_is_cursor_x, visual_structure.copied_text[0][i]);
-			  where_is_cursor_x++;
+			          text[cursor_position_y].insert(text[cursor_position_y].begin() + where_is_cursor_x, visual_structure.copied_text[0][i]);
+			          where_is_cursor_x++;
                   }
 
-		  if(text[cursor_position_y].size() >= xMax - 1)
+		  /*if(text[cursor_position_y].size() >= xMax - 1)
 	          {
 			  for(int i = text[cursor_position_y].size() - 1; i >= xMax - 1; i--)
 		          {
@@ -126,7 +126,7 @@ void paste_visual(int& cursor_position_y, int& cursor_position_x, int& xMax, int
 				  text[cursor_position_y].pop_back();
 		          }
 
-		  }
+		  }*/
 
                    if(min_value_line != max_value_line)
 	           {
@@ -142,7 +142,7 @@ void paste_visual(int& cursor_position_y, int& cursor_position_x, int& xMax, int
                          } 
                    }
 
-                   if(text[where_is_cursor_y].size() + buffer.size() >= xMax - 1)
+                   /*if(text[where_is_cursor_y].size() + buffer.size() >= xMax - 1)
 		   {
 			   text.insert(text.begin() + where_is_cursor_y + 1, buffer);
                            
@@ -164,7 +164,7 @@ void paste_visual(int& cursor_position_y, int& cursor_position_x, int& xMax, int
 					 last_line_print++;
 			   }
 
-		   }
+		   }*/
 }
 
 void delete_visual(int& first_line_print, int& last_line_print, int& yMax, int& cursor_position_y, int& cursor_position_x, std::vector<std::string>& text, Visual_struct& visual_structure)

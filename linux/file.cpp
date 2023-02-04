@@ -30,7 +30,7 @@ void open_file(std::string& file_name, std::vector<std::string>& text, int& yMax
 			 {
                              row.push_back(c);
                          }
-                      }
+                     }
 
                      text.push_back(row);
 	       }        

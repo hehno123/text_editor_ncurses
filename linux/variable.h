@@ -34,9 +34,10 @@ void backspace_key_write(int &, int&, int& , int&, int&, int&, int& , int&, std:
 void newline_write(int &, int&, int& , int&, int&, int&, int& , int&, std::vector<std::string>&, std::string&, std::stack<Undo_struct>&);
 void other_char_write(int &, int&, int& , int& , int&, int&, int&, int& , int&, std::vector<std::string>&, std::stack<Undo_struct>&);
 void undo_change(int&, int&, int&, int&, int&, int&, int&, std::vector<std::string>&, std::stack<Undo_struct>&);
+void highlight(int& ,int& , int& , int& , std::vector<std::string>&);
 
 //Functions to read file and write to file
-void open_file(std::string& , std::vector<std::string>& , int& , int& , int&);
+void open_file(std::string& , std::vector<std::string>& , int& , int& , int&, int&, int&);
 void write_file(std::string& , std::vector<std::string>&);
 
 #endif
