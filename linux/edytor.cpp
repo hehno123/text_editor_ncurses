@@ -11,8 +11,6 @@
 #include "copy_variable.h"
 #include "syntax_highlighter.h"
 
-//int array_color[yMax + 1][xMax + 1];
-
 void printString(std::string name, int minRange, int xMax, int array_color[])
 {
 	  int index = minRange;
@@ -191,9 +189,9 @@ void print_text(std::string& file_name, int& first_line_print, int& last_line_pr
 
 		             if(what_mode != visual_mode)
 	                     {			     
-			         //printw(text[j].c_str());
-			         //printw("%c", '\n');
-				 printString(text[j], minRangeX, xMax, array_color[index_in_color_array]);
+			         printw(text[j].c_str());
+			         printw("%c", '\n');
+				 //printString(text[j], minRangeX, xMax, array_color[index_in_color_array]);
 		             }
 
 			     if(what_mode == visual_mode)
@@ -289,9 +287,9 @@ void print_text(std::string& file_name, int& first_line_print, int& last_line_pr
                             //
 			    //init_pair(1, COLOR_BLUE, 0);
 		            attrset(COLOR_PAIR(1)); 			   
-			    //printw("~");
-		            //printw("%c", '\n');
-			    printString("~", minRangeX, xMax, array_color[index_in_color_array]);
+			    printw("~");
+		            printw("%c", '\n');
+			    //printString("~", minRangeX, xMax, array_color[index_in_color_array]);
 		            refresh();
 			}
 
