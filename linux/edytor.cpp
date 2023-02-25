@@ -80,6 +80,7 @@ void print_text(std::string& file_name, int& first_line_print, int& last_line_pr
 	  int index_in_color_array_x = 0;
 	  bool is_char_in_string = false;
           
+	/*
           for(int i = first_line_print; i <= first_line_print + yMax - 1; i++)
           {
 		  if(i < text.size())
@@ -88,7 +89,7 @@ void print_text(std::string& file_name, int& first_line_print, int& last_line_pr
                              
 		      for(int j = minRangeX; j <= maxRangeX && j < text[i].size(); j++)
 		      {
-			      /*
+		
 			      if(text[i][j] == 34)
 			      {
 				       if(is_char_in_string)
@@ -119,7 +120,7 @@ void print_text(std::string& file_name, int& first_line_print, int& last_line_pr
 		              {
 				      name.push_back(text[i][j]);
 				      array_color[index_in_color_array][index_in_color_array_x] = 0;
-			      }*/
+			      }
 
 			      for(int k = 0; k < variable_types_cpp.size(); k++)
 			      {
@@ -166,7 +167,7 @@ void print_text(std::string& file_name, int& first_line_print, int& last_line_pr
 
 
 		index_in_color_array++;
-	  }
+	  } */
 
 	  if(cursor_position_x < minRangeX)
 	  {
@@ -254,7 +255,8 @@ void print_text(std::string& file_name, int& first_line_print, int& last_line_pr
 				                 {
 							 printw("%c", '\n');
 						 }*/
-						       printVisualString(text[j], minRangeX, xMax, min_value_x_copy, max_value_x_copy);
+						 
+					         printVisualString(text[j], minRangeX, xMax, min_value_x_copy, max_value_x_copy);
 				     }
 
 
