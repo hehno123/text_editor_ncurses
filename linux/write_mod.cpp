@@ -153,6 +153,7 @@ void backspace_key_write(int& level, int& c, int& cursor_position_x, int& cursor
                                     undo.what_operation = backspace_undo;
 			            text_history.push(undo);
 		             }
+
 			     return;
 		    }
 

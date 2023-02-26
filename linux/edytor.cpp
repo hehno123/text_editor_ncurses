@@ -206,8 +206,7 @@ void print_text(std::string& file_name, int& first_line_print, int& last_line_pr
 				     if(j == max_value_line || j == min_value_line)
 				     {
 					              if(text[j].size() == 0)
-					              { 
-                                                          init_pair(2, COLOR_WHITE, COLOR_RED);
+					              {  
 							  attrset(COLOR_PAIR(2));
 							  printw(" ", minRangeX, xMax);
 					              } 
@@ -233,44 +232,43 @@ void print_text(std::string& file_name, int& first_line_print, int& last_line_pr
 							       max_value_x_copy = text[j].size() - 1;
 						       }
 
-                                                  /*for(int i = minRangeX; i < text[j].size() || i <= maxRangeX; i++)
+                                                  for(int i = minRangeX; i < text[j].size() && i <= maxRangeX; i++)
 					          {
-						       if(i >= min_value_x_copy && i <= max_value_x_copy)
-						       {
-                                                             init_pair(2, COLOR_WHITE, COLOR_RED);
-							     attrset(COLOR_PAIR(2));
-							     printw("%c", text[j][i]);
-						       }
+						          if(i >= min_value_x_copy && i <= max_value_x_copy)
+						          {
+							       attrset(COLOR_PAIR(2));
+							       printw("%c", text[j][i]);
+						          }
 
-						       else
-						       {
-							     attrset(COLOR_PAIR(0));
-							     printw("%c", text[j][i]);
-						       } 
+						          else
+						          {
+							       attrset(COLOR_PAIR(0));
+							       printw("%c", text[j][i]);
+						          } 
 				                 }
 
 					         if(maxRangeX >= text[j].size() - 1)
 				                 {
 							 printw("%c", '\n');
-						 }*/
-						 
-					         printVisualString(text[j], minRangeX, xMax, min_value_x_copy, max_value_x_copy);
+						 }
+						
+						 /*for(int i = minRangeX; i < text[j] 
+					         printVisualString(text[j], minRangeX, xMax, min_value_x_copy, max_value_x_copy);*/
 				     }
 
 
 				     else if(j > min_value_line && j < max_value_line)
-			             {
-                                             init_pair(2, COLOR_WHITE, COLOR_RED);
+			             { 
 					     attrset(COLOR_PAIR(2));
 					     
 					     if(text[j].size() == 0)
 					     {
-						     printString(" ", minRangeX, xMax, array_color[index_in_color_array]);
+						     printVisualString(" ", minRangeX, xMax, minRangeX, maxRangeX);
 					     }
 
 					     else
 				             {
-						     printString(text[j], minRangeX, xMax, array_color[index_in_color_array]);
+						     printVisualString(text[j], minRangeX, xMax, minRangeX, maxRangeX);
 					     }
 				     }
 
@@ -282,16 +280,14 @@ void print_text(std::string& file_name, int& first_line_print, int& last_line_pr
 
 		   } 
 
-                        else
-		        {
-                            //
-			    //init_pair(1, COLOR_BLUE, 0);
-		            attrset(COLOR_PAIR(1)); 			   
+                   else
+		   {
+                            attrset(COLOR_PAIR(1)); 			   
 			    printw("~");
 		            printw("%c", '\n');
 			    //printString("~", minRangeX, xMax, array_color[index_in_color_array]);
 		            refresh();
-			}
+                   }
 
                         index_in_color_array++;			
 	  }
@@ -420,7 +416,7 @@ int main(int argc, char** argv)
 				 text_history.push(undo_struct_copy);
 			         break;
 
-		        case KEY_BACKSPACE:
+		        case '\b':
 			         backspace_key_write(level, input_key, cursor_position_x, cursor_position_y, xMax, yMax, first_line_print, last_line_print, text, add, text_history);
 			         break;
 
@@ -639,14 +635,7 @@ int main(int argc, char** argv)
 			      else
 		              {
 				      name.push_back(text[i][j]);
-			      }
-
-			      if(name == "for")
-			      {
-				      mvchgat(i, j - 2, name.size(), A_BLINK, 1, NULL);
-				      printw("nigger");
-				      refresh();
-			      }
+			      } 
 		      }
 	           }
 
